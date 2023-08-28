@@ -3,11 +3,6 @@ package net.tropicbliss.mathquiz.ui
 import androidx.compose.runtime.Composable
 
 @Composable
-fun QuizScreen(quizMode: QuizMode) {
+fun QuizScreen() {
 
-}
-
-enum class QuizMode {
-    Precise,
-    Estimation
 }

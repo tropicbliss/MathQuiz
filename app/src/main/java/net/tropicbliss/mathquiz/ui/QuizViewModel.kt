@@ -1,13 +1,100 @@
 package net.tropicbliss.mathquiz.ui
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import net.tropicbliss.mathquiz.data.QuizUiState
+import net.tropicbliss.mathquiz.data.QuizMode
 import net.tropicbliss.mathquiz.data.QuizzesRepository
+import kotlin.math.abs
+import kotlin.collections.average
+import kotlin.math.roundToInt
 
 class QuizViewModel(private val quizzesRepository: QuizzesRepository) : ViewModel() {
-    private val _uiState = MutableStateFlow(QuizUiState())
-    val uiState: StateFlow<QuizUiState> = _uiState.asStateFlow()
+    var quizMode = QuizMode.Estimation
+
+    var userAnswer by mutableStateOf("0")
+        private set
+
+    var currentProblem by mutableStateOf(generateRandomProblem())
+        private set
+
+    private var answeredProblems: MutableList<AnsweredProblem> = mutableListOf()
+
+    private fun generateRandomProblem(): Problem {
+        val maxOperand = when (quizMode) {
+            QuizMode.Precision -> 10
+            QuizMode.Estimation -> 1999
+        }
+        val operand1 = (1..maxOperand).random()
+        val operand2 = (1..maxOperand).random()
+        return Problem(operand1, operand2)
+    }
+
+    fun updateUserAnswer(answer: String) {
+        userAnswer = answer
+    }
+
+    fun submit() {
+        val iUserAnswer = userAnswer.toIntOrNull() ?: return
+        val actualAnswer = currentProblem.operand1 * currentProblem.operand2
+        var accuracyPercentage: Float? = null
+        var variancePercentage: Float? = null
+        var acceptableRange: String? = null
+        val isCorrect = when (quizMode) {
+            QuizMode.Precision -> actualAnswer == iUserAnswer
+            QuizMode.Estimation -> {
+                accuracyPercentage =
+                    100 - abs((actualAnswer - iUserAnswer).toFloat() / actualAnswer * 100)
+                accuracyPercentage >= 0.80
+            }
+        }
+        answeredProblems.add(
+            AnsweredProblem(
+                problem = currentProblem,
+                userAnswer = iUserAnswer,
+                isCorrect = isCorrect,
+                accuracyPercentage = accuracyPercentage,
+                actualAnswer = actualAnswer
+            )
+        )
+        updateUserAnswer("")
+        currentProblem = generateRandomProblem()
+    }
+
+    fun exportResults(): Results {
+        val averageAccuracy: Int? = try {
+            answeredProblems.mapNotNull { it.accuracyPercentage }.average().roundToInt()
+        } catch (_: IllegalArgumentException) {
+            null
+        }
+        val questionsPerMinute =
+            (answeredProblems.count().toFloat() / quizMode.getTotalTimeInMinutes()).roundToInt()
+        return Results(
+            averageAccuracy = averageAccuracy,
+            questionsPerMinute = questionsPerMinute,
+            problems = answeredProblems.toList()
+        )
+    }
 }
+
+data class Problem(
+    val operand1: Int,
+    val operand2: Int
+)
+
+data class Results(
+    val averageAccuracy: Int?,
+    val questionsPerMinute: Int,
+    val problems: List<AnsweredProblem>
+)
+
+data class AnsweredProblem(
+    val problem: Problem,
+    val userAnswer: Int,
+    val actualAnswer: Int,
+    val isCorrect: Boolean,
+    val variance: Float?,
+    val acceptableRange: String?,
+    val accuracyPercentage: Float?
+)

@@ -1,5 +1,6 @@
 package net.tropicbliss.mathquiz.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,24 +18,25 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.tropicbliss.mathquiz.MathQuizScreen
 import net.tropicbliss.mathquiz.R
+import net.tropicbliss.mathquiz.data.QuizMode
 
 @Composable
-fun StartScreen(onNavigate: (MathQuizScreen) -> Unit) {
+fun StartScreen(onNavigate: (QuizMode) -> Unit) {
     Column {
         QuizCard(
             title = stringResource(R.string.estimation),
             description = stringResource(R.string.estimation_description),
-            maxTime = 3,
+            maxTime = QuizMode.Estimation.getTotalTimeInMinutes(),
             onClick = {
-                onNavigate(MathQuizScreen.Estimation)
+                onNavigate(QuizMode.Estimation)
             }
         )
         QuizCard(
             title = stringResource(R.string.precise),
             description = stringResource(R.string.precision_description),
-            maxTime = 1,
+            maxTime = QuizMode.Precision.getTotalTimeInMinutes(),
             onClick = {
-                onNavigate(MathQuizScreen.Precise)
+                onNavigate(QuizMode.Precision)
             }
         )
     }
@@ -45,7 +47,10 @@ fun QuizCard(title: String, description: String, maxTime: Int, onClick: () -> Un
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(dimensionResource(R.dimen.padding_medium)),
+            .padding(dimensionResource(R.dimen.padding_medium))
+            .clickable {
+                onClick()
+            },
         elevation = CardDefaults.cardElevation(),
     ) {
         Column(
@@ -59,9 +64,6 @@ fun QuizCard(title: String, description: String, maxTime: Int, onClick: () -> Un
                     pluralStringResource(R.plurals.minute, maxTime, maxTime)
                 }", style = MaterialTheme.typography.bodyLarge
             )
-            Button(onClick = onClick) {
-                Text(stringResource(R.string.start))
-            }
         }
     }
 }

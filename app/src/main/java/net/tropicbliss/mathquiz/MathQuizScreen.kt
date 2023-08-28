@@ -43,7 +43,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import net.tropicbliss.mathquiz.ui.ProgressScreen
-import net.tropicbliss.mathquiz.ui.QuizMode
 import net.tropicbliss.mathquiz.ui.QuizScreen
 import net.tropicbliss.mathquiz.ui.QuizViewModel
 import net.tropicbliss.mathquiz.ui.StartScreen
@@ -53,8 +52,7 @@ import net.tropicbliss.mathquiz.ui.AppViewModelProvider
 
 enum class MathQuizScreen(@StringRes val title: Int) {
     Start(R.string.app_name),
-    Precise(R.string.precise_mode),
-    Estimation(R.string.estimation_mode),
+    Quiz(R.string.quiz),
     Summary(R.string.summary_screen),
     Progress(R.string.progress_screen)
 }
@@ -182,14 +180,12 @@ fun MathQuizApp(
             ) {
                 composable(route = MathQuizScreen.Start.name) {
                     StartScreen(onNavigate = {
-                        navController.navigate(it.name)
+                        viewModel.quizMode = it
+                        navController.navigate(MathQuizScreen.Quiz.name)
                     })
                 }
-                composable(route = MathQuizScreen.Precise.name) {
-                    QuizScreen(quizMode = QuizMode.Precise)
-                }
-                composable(route = MathQuizScreen.Estimation.name) {
-                    QuizScreen(quizMode = QuizMode.Estimation)
+                composable(route = MathQuizScreen.Quiz.name) {
+                    QuizScreen()
                 }
                 composable(route = "${MathQuizScreen.Summary.name}/{quizResults}") { backStackEntry ->
                     val jsonQuizResults = backStackEntry.arguments?.getString("quizResults")!!

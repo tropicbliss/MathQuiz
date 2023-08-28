@@ -1,7 +1,5 @@
 <resources>
     <string name="app_name">Math Quiz</string>
-    <string name="precise_mode">Precision mode</string>
-    <string name="estimation_mode">Estimation mode</string>
     <string name="summary_screen">Summary</string>
     <string name="progress_screen">Progress Tracker</string>
     <string name="menu">Menu</string>
@@ -12,10 +10,10 @@
     <string name="estimation_description">Questions are considerably more challenging, but your response is considered correct if it falls within 20% accuracy of the correct answer.</string>
     <string name="precision_description">Math problems are considerably simpler (with a maximum operand of 10), but your answer must be exact to be considered correct.</string>
     <string name="total_time">Total time</string>
-    <string name="start">Start</string>
     <plurals name="minute">
         <item quantity="one">%d minute</item>
         <item quantity="other">%d minutes</item>
     </plurals>
     <string name="share_score">Share score</string>
+    <string name="quiz">Math quiz</string>
 </resources>
