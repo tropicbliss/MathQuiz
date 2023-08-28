@@ -8,12 +8,14 @@ import net.tropicbliss.mathquiz.data.QuizMode
 import net.tropicbliss.mathquiz.data.QuizzesRepository
 import kotlin.math.abs
 import kotlin.collections.average
+import kotlin.math.ceil
+import kotlin.math.floor
 import kotlin.math.roundToInt
 
 class QuizViewModel(private val quizzesRepository: QuizzesRepository) : ViewModel() {
     var quizMode = QuizMode.Estimation
 
-    var userAnswer by mutableStateOf("0")
+    var userAnswer by mutableStateOf("")
         private set
 
     var currentProblem by mutableStateOf(generateRandomProblem())
@@ -39,14 +41,19 @@ class QuizViewModel(private val quizzesRepository: QuizzesRepository) : ViewMode
         val iUserAnswer = userAnswer.toIntOrNull() ?: return
         val actualAnswer = currentProblem.operand1 * currentProblem.operand2
         var accuracyPercentage: Float? = null
-        var variancePercentage: Float? = null
+        var variancePercentage: Int? = null
         var acceptableRange: String? = null
         val isCorrect = when (quizMode) {
             QuizMode.Precision -> actualAnswer == iUserAnswer
             QuizMode.Estimation -> {
-                accuracyPercentage =
-                    100 - abs((actualAnswer - iUserAnswer).toFloat() / actualAnswer * 100)
-                accuracyPercentage >= 0.80
+                val tempVariancePercentage =
+                    (actualAnswer - iUserAnswer).toFloat() / actualAnswer * 100
+                variancePercentage = tempVariancePercentage.roundToInt()
+                accuracyPercentage = 100 - abs(tempVariancePercentage)
+                val min = ceil(0.8f * actualAnswer).toInt()
+                val max = floor(1.2f * actualAnswer).toInt()
+                acceptableRange = "$min - $max"
+                (min..max).contains(iUserAnswer)
             }
         }
         answeredProblems.add(
@@ -55,7 +62,9 @@ class QuizViewModel(private val quizzesRepository: QuizzesRepository) : ViewMode
                 userAnswer = iUserAnswer,
                 isCorrect = isCorrect,
                 accuracyPercentage = accuracyPercentage,
-                actualAnswer = actualAnswer
+                actualAnswer = actualAnswer,
+                variancePercentage = variancePercentage,
+                acceptableRange = acceptableRange
             )
         )
         updateUserAnswer("")
@@ -94,7 +103,7 @@ data class AnsweredProblem(
     val userAnswer: Int,
     val actualAnswer: Int,
     val isCorrect: Boolean,
-    val variance: Float?,
+    val variancePercentage: Int?,
     val acceptableRange: String?,
     val accuracyPercentage: Float?
 )
