@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import net.tropicbliss.mathquiz.data.Quiz
 import net.tropicbliss.mathquiz.data.QuizMode
 import net.tropicbliss.mathquiz.data.QuizzesRepository
 import kotlin.math.abs
@@ -71,7 +72,7 @@ class QuizViewModel(private val quizzesRepository: QuizzesRepository) : ViewMode
         currentProblem = generateRandomProblem()
     }
 
-    fun exportResults(): Results {
+    suspend fun exportResults(): Results {
         val averageAccuracy: Int? = try {
             answeredProblems.mapNotNull { it.accuracyPercentage }.average().roundToInt()
         } catch (_: IllegalArgumentException) {
@@ -79,6 +80,14 @@ class QuizViewModel(private val quizzesRepository: QuizzesRepository) : ViewMode
         }
         val questionsPerMinute =
             (answeredProblems.count().toFloat() / quizMode.getTotalTimeInMinutes()).roundToInt()
+        quizzesRepository.insertQuiz(
+            Quiz(
+                questionsPerMinute = questionsPerMinute,
+                averageAccuracy = averageAccuracy,
+                mode = quizMode.name,
+                timeDelta = ((System.currentTimeMillis() - 1693248775000L) / 1000L).toInt()
+            )
+        )
         return Results(
             averageAccuracy = averageAccuracy,
             questionsPerMinute = questionsPerMinute,

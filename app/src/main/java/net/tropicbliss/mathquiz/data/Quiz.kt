@@ -7,8 +7,8 @@ import androidx.room.PrimaryKey
 data class Quiz(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val answered: Int,
-    val correct: Int,
+    val averageAccuracy: Int?,
+    val questionsPerMinute: Int,
     val mode: String,
-    val timestamp: Int
+    val timeDelta: Int
 )

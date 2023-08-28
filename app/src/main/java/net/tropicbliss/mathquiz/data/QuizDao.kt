@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface QuizDao {
-    @Query("SELECT * FROM quizzes ORDER BY timestamp DESC")
+    @Query("SELECT * FROM quizzes ORDER BY timeDelta DESC")
     fun getAllQuizzes(): Flow<List<Quiz>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
