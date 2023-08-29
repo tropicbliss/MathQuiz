@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import kotlinx.serialization.Serializable
 import net.tropicbliss.mathquiz.data.Quiz
 import net.tropicbliss.mathquiz.data.QuizMode
 import net.tropicbliss.mathquiz.data.QuizzesRepository
@@ -96,17 +97,20 @@ class QuizViewModel(private val quizzesRepository: QuizzesRepository) : ViewMode
     }
 }
 
+@Serializable
 data class Problem(
     val operand1: Int,
     val operand2: Int
 )
 
+@Serializable
 data class Results(
     val averageAccuracy: Int?,
     val questionsPerMinute: Int,
     val problems: List<AnsweredProblem>
 )
 
+@Serializable
 data class AnsweredProblem(
     val problem: Problem,
     val userAnswer: Int,

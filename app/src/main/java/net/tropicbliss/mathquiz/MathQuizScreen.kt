@@ -48,7 +48,10 @@ import net.tropicbliss.mathquiz.ui.QuizViewModel
 import net.tropicbliss.mathquiz.ui.StartScreen
 import net.tropicbliss.mathquiz.ui.SummaryScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import net.tropicbliss.mathquiz.ui.AppViewModelProvider
+import net.tropicbliss.mathquiz.ui.Results
 
 enum class MathQuizScreen(@StringRes val title: Int) {
     Start(R.string.app_name),
@@ -185,14 +188,21 @@ fun MathQuizApp(
                     })
                 }
                 composable(route = MathQuizScreen.Quiz.name) {
-                    QuizScreen()
+                    QuizScreen(onTimerEnd = {
+                        scope.launch {
+                            val quizResults = viewModel.exportResults()
+                            val jsonQuizResults = Json.encodeToString(quizResults)
+                            navController.navigate("${MathQuizScreen.Summary.name}/${jsonQuizResults}")
+                        }
+                    })
                 }
                 composable(route = "${MathQuizScreen.Summary.name}/{quizResults}") { backStackEntry ->
                     val jsonQuizResults = backStackEntry.arguments?.getString("quizResults")!!
+                    val quizResults = Json.decodeFromString<Results>(jsonQuizResults)
                     BackHandler {
                         navController.popBackStack(MathQuizScreen.Start.name, inclusive = false)
                     }
-                    SummaryScreen()
+                    SummaryScreen(results = quizResults)
                 }
                 composable(route = MathQuizScreen.Progress.name) {
                     ProgressScreen()
