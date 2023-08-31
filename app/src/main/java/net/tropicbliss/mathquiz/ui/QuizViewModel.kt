@@ -74,10 +74,11 @@ class QuizViewModel(private val quizzesRepository: QuizzesRepository) : ViewMode
     }
 
     suspend fun exportResults(): Results {
-        val averageAccuracy: Int? = try {
-            answeredProblems.mapNotNull { it.accuracyPercentage }.average().roundToInt()
-        } catch (_: IllegalArgumentException) {
+        val averages = answeredProblems.mapNotNull { it.accuracyPercentage }
+        val averageAccuracy: Int? = if (averages.isEmpty()) {
             null
+        } else {
+            averages.average().roundToInt()
         }
         val questionsPerMinute =
             (answeredProblems.count().toFloat() / quizMode.getTotalTimeInMinutes()).roundToInt()
