@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Share
@@ -36,7 +37,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -58,8 +58,6 @@ import net.tropicbliss.mathquiz.ui.StartScreen
 import net.tropicbliss.mathquiz.ui.SummaryScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import net.tropicbliss.mathquiz.data.QuizMode
 import net.tropicbliss.mathquiz.ui.AppViewModelProvider
 import net.tropicbliss.mathquiz.ui.Results
@@ -88,6 +86,7 @@ private fun MathQuizAppBar(
     onClickShare: () -> Unit,
     quizMode: QuizMode,
     onTimerComplete: () -> Unit,
+    onInfoOpen: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     TopAppBar(title = {
@@ -124,6 +123,12 @@ private fun MathQuizAppBar(
     }, actions = {
         when (currentScreen) {
             MathQuizScreen.Summary -> {
+                IconButton(onClick = onInfoOpen) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = stringResource(R.string.info)
+                    )
+                }
                 IconButton(onClick = onClickShare) {
                     Icon(
                         imageVector = Icons.Default.Share,
@@ -174,6 +179,9 @@ fun MathQuizApp(
     }
     val context = LocalContext.current
     val quiz = stringResource(R.string.quiz)
+    var isDialogOpen by rememberSaveable {
+        mutableStateOf(false)
+    }
 
     ModalNavigationDrawer(drawerContent = {
         ModalDrawerSheet {
@@ -207,8 +215,9 @@ fun MathQuizApp(
             }, onClickShare = {
                 val questionsAnswered = quizResults!!.problems.count()
                 val questionsPerMinute = quizResults!!.questionsPerMinute
+                val averageAccuracy = quizResults!!.averageAccuracy
                 val shareText =
-                    "For ${quizMode.name}, I answered $questionsAnswered ${if (questionsAnswered == 1) "question" else "questions"} at a rate of $questionsPerMinute ${if (questionsPerMinute == 1) "question" else "questions"} per minute!"
+                    "For ${quizMode.name}, I answered $questionsAnswered ${if (questionsAnswered == 1) "question" else "questions"} at a rate of $questionsPerMinute ${if (questionsPerMinute == 1) "question" else "questions"} per minute${if (averageAccuracy == null) "" else " with an average accuracy of $averageAccuracy%"}!"
                 shareScore(context, quiz, shareText)
             }, navigateUp = {
                 navController.navigateUp()
@@ -216,6 +225,8 @@ fun MathQuizApp(
                 scope.launch {
                     quizResults = viewModel.exportResults()
                 }
+            }, onInfoOpen = {
+                isDialogOpen = true
             })
         }) { innerPadding ->
             NavHost(
@@ -233,11 +244,16 @@ fun MathQuizApp(
                 composable(route = MathQuizScreen.Quiz.name) {
                     QuizScreen(viewModel)
                 }
-                composable(route = MathQuizScreen.Summary.name) { backStackEntry ->
+                composable(route = MathQuizScreen.Summary.name) {
                     BackHandler {
                         navController.popBackStack(MathQuizScreen.Start.name, inclusive = false)
                     }
-                    SummaryScreen(results = quizResults!!)
+                    SummaryScreen(
+                        results = quizResults!!,
+                        isDialogOpen = isDialogOpen,
+                        onCloseInfo = {
+                            isDialogOpen = false
+                        })
                 }
                 composable(route = MathQuizScreen.Progress.name) {
                     ProgressScreen()
