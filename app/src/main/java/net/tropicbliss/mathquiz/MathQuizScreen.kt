@@ -4,16 +4,19 @@ import android.content.Context
 import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.List
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -22,13 +25,18 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -48,8 +56,10 @@ import net.tropicbliss.mathquiz.ui.QuizViewModel
 import net.tropicbliss.mathquiz.ui.StartScreen
 import net.tropicbliss.mathquiz.ui.SummaryScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.delay
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import net.tropicbliss.mathquiz.data.QuizMode
 import net.tropicbliss.mathquiz.ui.AppViewModelProvider
 import net.tropicbliss.mathquiz.ui.Results
 
@@ -78,6 +88,8 @@ private fun MathQuizAppBar(
     navigateUp: () -> Unit,
     onClickNavigationItem: () -> Unit,
     onClickShare: () -> Unit,
+    quizMode: QuizMode,
+    onTimerComplete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     TopAppBar(title = {
@@ -102,16 +114,31 @@ private fun MathQuizAppBar(
                 }
             }
 
-            else -> {}
+            MathQuizScreen.Quiz -> {
+                IconButton(onClick = navigateUp) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = stringResource(R.string.back)
+                    )
+                }
+            }
         }
     }, actions = {
-        if (currentScreen == MathQuizScreen.Summary) {
-            IconButton(onClick = onClickShare) {
-                Icon(
-                    imageVector = Icons.Default.Share,
-                    contentDescription = stringResource(R.string.share)
-                )
+        when (currentScreen) {
+            MathQuizScreen.Summary -> {
+                IconButton(onClick = onClickShare) {
+                    Icon(
+                        imageVector = Icons.Default.Share,
+                        contentDescription = stringResource(R.string.share)
+                    )
+                }
             }
+
+            MathQuizScreen.Quiz -> {
+                Timer(startTime = quizMode.getTotalTimeInMinutes(), onComplete = onTimerComplete)
+            }
+
+            else -> {}
         }
     }, modifier = modifier)
 }
@@ -140,6 +167,9 @@ fun MathQuizApp(
     )
     var selectedItemIndex by rememberSaveable {
         mutableIntStateOf(0)
+    }
+    var quizMode by rememberSaveable {
+        mutableStateOf(QuizMode.Precision)
     }
 
     ModalNavigationDrawer(drawerContent = {
@@ -174,6 +204,12 @@ fun MathQuizApp(
             }, onClickShare = {
             }, navigateUp = {
                 navController.navigateUp()
+            }, quizMode = quizMode, onTimerComplete = {
+                scope.launch {
+                    val quizResults = viewModel.exportResults()
+                    val jsonQuizResults = Json.encodeToString(quizResults)
+                    navController.navigate("${MathQuizScreen.Summary.name}/${jsonQuizResults}")
+                }
             })
         }) { innerPadding ->
             NavHost(
@@ -184,17 +220,12 @@ fun MathQuizApp(
                 composable(route = MathQuizScreen.Start.name) {
                     StartScreen(onNavigate = {
                         viewModel.quizMode = it
+                        quizMode = it
                         navController.navigate(MathQuizScreen.Quiz.name)
                     })
                 }
                 composable(route = MathQuizScreen.Quiz.name) {
-                    QuizScreen(onTimerEnd = {
-                        scope.launch {
-                            val quizResults = viewModel.exportResults()
-                            val jsonQuizResults = Json.encodeToString(quizResults)
-                            navController.navigate("${MathQuizScreen.Summary.name}/${jsonQuizResults}")
-                        }
-                    })
+                    QuizScreen(viewModel)
                 }
                 composable(route = "${MathQuizScreen.Summary.name}/{quizResults}") { backStackEntry ->
                     val jsonQuizResults = backStackEntry.arguments?.getString("quizResults")!!
@@ -210,6 +241,31 @@ fun MathQuizApp(
             }
         }
     }
+}
+
+@Composable
+fun Timer(startTime: Int, onComplete: () -> Unit) {
+    var currentTime by rememberSaveable {
+        mutableIntStateOf(startTime)
+    }
+    var progress by rememberSaveable {
+        mutableFloatStateOf(1.0f)
+    }
+    val animatedProgress = animateFloatAsState(
+        targetValue = progress, animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec,
+        label = "timerProgress"
+    ).value
+
+    LaunchedEffect(key1 = currentTime) {
+        if (currentTime > 0) {
+            delay(1_000L)
+            currentTime--
+            progress = currentTime.toFloat() / startTime
+        } else {
+            onComplete()
+        }
+    }
+    CircularProgressIndicator(progress = animatedProgress)
 }
 
 private fun shareScore(context: Context, subject: String, text: String) {

@@ -16,4 +16,6 @@
     </plurals>
     <string name="share_score">Share score</string>
     <string name="quiz">Math quiz</string>
+    <string name="back">Back</string>
+    <string name="answer">Answer</string>
 </resources>

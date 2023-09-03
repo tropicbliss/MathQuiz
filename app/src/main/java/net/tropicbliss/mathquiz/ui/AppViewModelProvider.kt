@@ -11,6 +11,9 @@ object AppViewModelProvider {
         initializer {
             QuizViewModel(mathQuizApplication().container.quizzesRepository)
         }
+        initializer {
+            ProgressViewModel(mathQuizApplication().container.quizzesRepository)
+        }
     }
 }
 
