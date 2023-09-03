@@ -42,6 +42,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
@@ -64,10 +65,7 @@ import net.tropicbliss.mathquiz.ui.AppViewModelProvider
 import net.tropicbliss.mathquiz.ui.Results
 
 enum class MathQuizScreen(@StringRes val title: Int) {
-    Start(R.string.app_name),
-    Quiz(R.string.quiz),
-    Summary(R.string.summary_screen),
-    Progress(R.string.progress_screen)
+    Start(R.string.app_name), Quiz(R.string.quiz), Summary(R.string.summary_screen), Progress(R.string.progress_screen)
 }
 
 private data class NavigationItem(
@@ -171,6 +169,11 @@ fun MathQuizApp(
     var quizMode by rememberSaveable {
         mutableStateOf(QuizMode.Precision)
     }
+    var quizResults by rememberSaveable {
+        mutableStateOf<Results?>(null)
+    }
+    val context = LocalContext.current
+    val quiz = stringResource(R.string.quiz)
 
     ModalNavigationDrawer(drawerContent = {
         ModalDrawerSheet {
@@ -202,13 +205,16 @@ fun MathQuizApp(
                     drawerState.open()
                 }
             }, onClickShare = {
+                val questionsAnswered = quizResults!!.problems.count()
+                val questionsPerMinute = quizResults!!.questionsPerMinute
+                val shareText =
+                    "For ${quizMode.name}, I answered $questionsAnswered ${if (questionsAnswered == 1) "question" else "questions"} at a rate of $questionsPerMinute ${if (questionsPerMinute == 1) "question" else "questions"} per minute!"
+                shareScore(context, quiz, shareText)
             }, navigateUp = {
                 navController.navigateUp()
             }, quizMode = quizMode, onTimerComplete = {
                 scope.launch {
-                    val quizResults = viewModel.exportResults()
-                    val jsonQuizResults = Json.encodeToString(quizResults)
-                    navController.navigate("${MathQuizScreen.Summary.name}/${jsonQuizResults}")
+                    quizResults = viewModel.exportResults()
                 }
             })
         }) { innerPadding ->
@@ -227,13 +233,11 @@ fun MathQuizApp(
                 composable(route = MathQuizScreen.Quiz.name) {
                     QuizScreen(viewModel)
                 }
-                composable(route = "${MathQuizScreen.Summary.name}/{quizResults}") { backStackEntry ->
-                    val jsonQuizResults = backStackEntry.arguments?.getString("quizResults")!!
-                    val quizResults = Json.decodeFromString<Results>(jsonQuizResults)
+                composable(route = MathQuizScreen.Summary.name) { backStackEntry ->
                     BackHandler {
                         navController.popBackStack(MathQuizScreen.Start.name, inclusive = false)
                     }
-                    SummaryScreen(results = quizResults)
+                    SummaryScreen(results = quizResults!!)
                 }
                 composable(route = MathQuizScreen.Progress.name) {
                     ProgressScreen()
@@ -252,7 +256,8 @@ fun Timer(startTime: Int, onComplete: () -> Unit) {
         mutableFloatStateOf(1.0f)
     }
     val animatedProgress = animateFloatAsState(
-        targetValue = progress, animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec,
+        targetValue = progress,
+        animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec,
         label = "timerProgress"
     ).value
 
@@ -276,8 +281,7 @@ private fun shareScore(context: Context, subject: String, text: String) {
     }
     context.startActivity(
         Intent.createChooser(
-            intent,
-            context.getString(R.string.share_score)
+            intent, context.getString(R.string.share_score)
         )
     )
 }
