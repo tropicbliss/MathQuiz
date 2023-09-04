@@ -15,6 +15,7 @@ import kotlin.math.roundToInt
 
 class QuizViewModel(private val quizzesRepository: QuizzesRepository) : ViewModel() {
     var quizMode = QuizMode.Estimation
+        private set
 
     var userAnswer by mutableStateOf("")
         private set
@@ -32,6 +33,11 @@ class QuizViewModel(private val quizzesRepository: QuizzesRepository) : ViewMode
         val operand1 = (1..maxOperand).random()
         val operand2 = (1..maxOperand).random()
         return Problem(operand1, operand2)
+    }
+
+    fun setQuizMode(quizMode: QuizMode) {
+        this.quizMode = quizMode
+        currentProblem = generateRandomProblem()
     }
 
     fun updateUserAnswer(answer: String) {

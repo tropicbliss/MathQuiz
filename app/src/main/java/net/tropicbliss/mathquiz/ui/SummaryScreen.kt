@@ -2,6 +2,7 @@ package net.tropicbliss.mathquiz.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -26,7 +27,10 @@ fun SummaryScreen(
     LazyColumn(modifier = modifier) {
         items(results.problems) { problem ->
             Card(
-                modifier = modifier, elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(dimensionResource(R.dimen.padding_medium)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
             ) {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),

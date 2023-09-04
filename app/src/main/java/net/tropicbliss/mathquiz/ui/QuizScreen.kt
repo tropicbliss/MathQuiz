@@ -3,10 +3,10 @@ package net.tropicbliss.mathquiz.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -18,22 +18,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import net.tropicbliss.mathquiz.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuizScreen(quizModel: QuizViewModel, modifier: Modifier = Modifier) {
     Column(
         verticalArrangement = Arrangement.SpaceBetween, modifier = modifier.padding(
             dimensionResource(R.dimen.padding_medium)
-        ), horizontalAlignment = Alignment.CenterHorizontally
+        ).fillMaxHeight(), horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = "${quizModel.currentProblem.operand1} × ${quizModel.currentProblem.operand2}",
-            style = MaterialTheme.typography.displayMedium
+            style = MaterialTheme.typography.displayLarge
         )
         Column {
             OutlinedTextField(value = quizModel.userAnswer, enabled = false, placeholder = {
                 Text(stringResource(R.string.answer))
-            }, onValueChange = {})
+            }, onValueChange = {}, modifier = modifier.fillMaxWidth())
             NumPad(onNumPress = {
                 quizModel.updateUserAnswer(quizModel.userAnswer + it)
             }, onBackspace = {

@@ -146,7 +146,6 @@ private fun MathQuizAppBar(
     }, modifier = modifier)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MathQuizApp(
     navController: NavHostController = rememberNavController(),
@@ -171,9 +170,6 @@ fun MathQuizApp(
     var selectedItemIndex by rememberSaveable {
         mutableIntStateOf(0)
     }
-    var quizMode by rememberSaveable {
-        mutableStateOf(QuizMode.Precision)
-    }
     var quizResults by rememberSaveable {
         mutableStateOf<Results?>(null)
     }
@@ -183,30 +179,34 @@ fun MathQuizApp(
         mutableStateOf(false)
     }
 
-    ModalNavigationDrawer(drawerContent = {
-        ModalDrawerSheet {
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium)))
-            items.forEachIndexed { index, item ->
-                NavigationDrawerItem(label = {
-                    Text(stringResource(item.title))
-                }, selected = index == selectedItemIndex, onClick = {
-                    selectedItemIndex = index
-                    scope.launch {
-                        drawerState.close()
-                    }
-                    navController.navigate(item.toMathQuizScreen().name)
-                }, icon = {
-                    Icon(
-                        imageVector = if (index == selectedItemIndex) {
-                            item.selectedIcon
-                        } else {
-                            item.unselectedIcon
-                        }, contentDescription = stringResource(item.title)
-                    )
-                }, modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding))
+    ModalNavigationDrawer(
+        drawerContent = {
+            ModalDrawerSheet {
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium)))
+                items.forEachIndexed { index, item ->
+                    NavigationDrawerItem(label = {
+                        Text(stringResource(item.title))
+                    }, selected = index == selectedItemIndex, onClick = {
+                        selectedItemIndex = index
+                        scope.launch {
+                            drawerState.close()
+                        }
+                        navController.navigate(item.toMathQuizScreen().name)
+                    }, icon = {
+                        Icon(
+                            imageVector = if (index == selectedItemIndex) {
+                                item.selectedIcon
+                            } else {
+                                item.unselectedIcon
+                            }, contentDescription = stringResource(item.title)
+                        )
+                    }, modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding))
+                }
             }
-        }
-    }, drawerState = drawerState) {
+        },
+        drawerState = drawerState,
+        gesturesEnabled = currentScreen == MathQuizScreen.Start || currentScreen == MathQuizScreen.Progress
+    ) {
         Scaffold(topBar = {
             MathQuizAppBar(currentScreen = currentScreen, onClickNavigationItem = {
                 scope.launch {
@@ -217,13 +217,14 @@ fun MathQuizApp(
                 val questionsPerMinute = quizResults!!.questionsPerMinute
                 val averageAccuracy = quizResults!!.averageAccuracy
                 val shareText =
-                    "For ${quizMode.name}, I answered $questionsAnswered ${if (questionsAnswered == 1) "question" else "questions"} at a rate of $questionsPerMinute ${if (questionsPerMinute == 1) "question" else "questions"} per minute${if (averageAccuracy == null) "" else " with an average accuracy of $averageAccuracy%"}!"
+                    "For ${viewModel.quizMode.name.lowercase()}, I answered $questionsAnswered ${if (questionsAnswered == 1) "question" else "questions"} at a rate of $questionsPerMinute ${if (questionsPerMinute == 1) "question" else "questions"} per minute${if (averageAccuracy == null) "" else " with an average accuracy of $averageAccuracy%"}!"
                 shareScore(context, quiz, shareText)
             }, navigateUp = {
                 navController.navigateUp()
-            }, quizMode = quizMode, onTimerComplete = {
+            }, quizMode = viewModel.quizMode, onTimerComplete = {
                 scope.launch {
                     quizResults = viewModel.exportResults()
+                    navController.navigate(MathQuizScreen.Summary.name)
                 }
             }, onInfoOpen = {
                 isDialogOpen = true
@@ -236,8 +237,7 @@ fun MathQuizApp(
             ) {
                 composable(route = MathQuizScreen.Start.name) {
                     StartScreen(onNavigate = {
-                        viewModel.quizMode = it
-                        quizMode = it
+                        viewModel.setQuizMode(it)
                         navController.navigate(MathQuizScreen.Quiz.name)
                     })
                 }
@@ -265,8 +265,9 @@ fun MathQuizApp(
 
 @Composable
 fun Timer(startTime: Int, onComplete: () -> Unit) {
+    val totalTime = startTime * 60
     var currentTime by rememberSaveable {
-        mutableIntStateOf(startTime)
+        mutableIntStateOf(totalTime)
     }
     var progress by rememberSaveable {
         mutableFloatStateOf(1.0f)
@@ -281,7 +282,8 @@ fun Timer(startTime: Int, onComplete: () -> Unit) {
         if (currentTime > 0) {
             delay(1_000L)
             currentTime--
-            progress = currentTime.toFloat() / startTime
+            println(currentTime)
+            progress = currentTime.toFloat() / totalTime
         } else {
             onComplete()
         }
