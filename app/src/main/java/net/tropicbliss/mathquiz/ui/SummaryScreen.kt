@@ -86,9 +86,11 @@ fun SummaryScreen(
         }, title = {
             Text(text = stringResource(R.string.more_info))
         }, text = {
-            Text(text = stringResource(R.string.questions_per_minute, results.questionsPerMinute))
-            if (results.averageAccuracy != null) {
-                Text(text = stringResource(R.string.average_accuracy, results.averageAccuracy))
+            Column {
+                Text(text = stringResource(R.string.questions_per_minute, results.questionsPerMinute))
+                if (results.averageAccuracy != null) {
+                    Text(text = stringResource(R.string.average_accuracy, results.averageAccuracy))
+                }
             }
         }, modifier = modifier)
     }

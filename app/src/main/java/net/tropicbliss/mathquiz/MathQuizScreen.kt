@@ -238,6 +238,7 @@ fun MathQuizApp(
                 composable(route = MathQuizScreen.Start.name) {
                     StartScreen(onNavigate = {
                         viewModel.setQuizMode(it)
+                        viewModel.clear()
                         navController.navigate(MathQuizScreen.Quiz.name)
                     })
                 }

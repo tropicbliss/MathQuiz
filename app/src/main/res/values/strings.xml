@@ -25,7 +25,7 @@
     <string name="average_accuracy">Average accuracy: %d</string>
     <string name="actual_answer">Actual answer: %d</string>
     <string name="user_answer">You answered: %d</string>
-    <string name="accuracy_percentage">Accuracy: %d%%</string>
+    <string name="accuracy_percentage">Accuracy: %.1f%%</string>
     <string name="variance_percentage">Variance: %d%%</string>
     <string name="acceptable_range">Acceptable range: %s</string>
 </resources>

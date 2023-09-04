@@ -44,6 +44,11 @@ class QuizViewModel(private val quizzesRepository: QuizzesRepository) : ViewMode
         userAnswer = answer
     }
 
+    fun clear() {
+        userAnswer = ""
+        answeredProblems.clear()
+    }
+
     fun submit() {
         val iUserAnswer = userAnswer.toIntOrNull() ?: return
         val actualAnswer = currentProblem.operand1 * currentProblem.operand2
