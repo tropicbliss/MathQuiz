@@ -32,7 +32,7 @@ fun StartScreen(onNavigate: (QuizMode) -> Unit) {
             }
         )
         QuizCard(
-            title = stringResource(R.string.precise),
+            title = stringResource(R.string.precision),
             description = stringResource(R.string.precision_description),
             maxTime = QuizMode.Precision.getTotalTimeInMinutes(),
             onClick = {

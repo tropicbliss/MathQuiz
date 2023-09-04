@@ -63,7 +63,7 @@ import net.tropicbliss.mathquiz.ui.AppViewModelProvider
 import net.tropicbliss.mathquiz.ui.Results
 
 enum class MathQuizScreen(@StringRes val title: Int) {
-    Start(R.string.app_name), Quiz(R.string.quiz), Summary(R.string.summary_screen), Progress(R.string.progress_screen)
+    Start(R.string.app_name), Quiz(R.string.app_name), Summary(R.string.summary_screen), Progress(R.string.progress_screen)
 }
 
 private data class NavigationItem(
@@ -89,8 +89,13 @@ private fun MathQuizAppBar(
     onInfoOpen: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val title = when (currentScreen) {
+        MathQuizScreen.Quiz -> stringResource(quizMode.getStringResource())
+        else -> stringResource(currentScreen.title)
+    }
+
     TopAppBar(title = {
-        Text(stringResource(currentScreen.title))
+        Text(title)
     }, navigationIcon = {
         when (currentScreen) {
             MathQuizScreen.Start, MathQuizScreen.Progress -> {
@@ -174,7 +179,7 @@ fun MathQuizApp(
         mutableStateOf<Results?>(null)
     }
     val context = LocalContext.current
-    val quiz = stringResource(R.string.quiz)
+    val quiz = stringResource(R.string.app_name)
     var isDialogOpen by rememberSaveable {
         mutableStateOf(false)
     }

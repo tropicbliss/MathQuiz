@@ -6,7 +6,7 @@
     <string name="home">Home</string>
     <string name="share">Share</string>
     <string name="estimation">Estimation</string>
-    <string name="precise">Precision</string>
+    <string name="precision">Precision</string>
     <string name="estimation_description">Questions are considerably more challenging, but your response is considered correct if it falls within 20% accuracy of the correct answer.</string>
     <string name="precision_description">Math problems are considerably simpler (with a maximum operand of 10), but your answer must be exact to be considered correct.</string>
     <string name="total_time">Total time</string>
@@ -15,7 +15,6 @@
         <item quantity="other">%d minutes</item>
     </plurals>
     <string name="share_score">Share score</string>
-    <string name="quiz">Math quiz</string>
     <string name="back">Back</string>
     <string name="answer">Answer</string>
     <string name="info">Info</string>
