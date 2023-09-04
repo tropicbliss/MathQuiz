@@ -283,7 +283,6 @@ fun Timer(startTime: Int, onComplete: () -> Unit) {
         if (currentTime > 0) {
             delay(1_000L)
             currentTime--
-            println(currentTime)
             progress = currentTime.toFloat() / totalTime
         } else {
             onComplete()
