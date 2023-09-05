@@ -27,4 +27,5 @@
     <string name="accuracy_percentage">Accuracy: %.1f%%</string>
     <string name="variance_percentage">Variance: %d%%</string>
     <string name="acceptable_range">Acceptable range: %s</string>
+    <string name="submit">Submit</string>
 </resources>

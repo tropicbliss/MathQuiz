@@ -21,9 +21,11 @@ import net.tropicbliss.mathquiz.R
 @Composable
 fun QuizScreen(quizModel: QuizViewModel, modifier: Modifier = Modifier) {
     Column(
-        verticalArrangement = Arrangement.SpaceBetween, modifier = modifier.padding(
-            dimensionResource(R.dimen.padding_medium)
-        ).fillMaxHeight(), horizontalAlignment = Alignment.CenterHorizontally
+        verticalArrangement = Arrangement.SpaceBetween, modifier = modifier
+            .padding(
+                dimensionResource(R.dimen.padding_medium)
+            )
+            .fillMaxHeight(), horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = "${quizModel.currentProblem.operand1} × ${quizModel.currentProblem.operand2}",
@@ -46,6 +48,8 @@ fun QuizScreen(quizModel: QuizViewModel, modifier: Modifier = Modifier) {
 
 @Composable
 fun NumPad(onNumPress: (String) -> Unit, onBackspace: () -> Unit, onSubmit: () -> Unit) {
+    val submit = stringResource(R.string.submit)
+
     NumRow(
         texts = listOf("7", "8", "9"), weights = listOf(0.33f, 0.33f, 0.33f), callback = onNumPress
     )
@@ -55,9 +59,9 @@ fun NumPad(onNumPress: (String) -> Unit, onBackspace: () -> Unit, onSubmit: () -
     NumRow(
         texts = listOf("1", "2", "3"), weights = listOf(0.33f, 0.33f, 0.33f), callback = onNumPress
     )
-    NumRow(texts = listOf("0", "←", "Submit"), weights = listOf(0.33f, 0.33f, 0.33f), callback = {
+    NumRow(texts = listOf("0", "←", submit), weights = listOf(0.33f, 0.33f, 0.33f), callback = {
         when (it) {
-            "Submit" -> onSubmit()
+            submit -> onSubmit()
             "←" -> onBackspace()
             else -> onNumPress(it)
         }
