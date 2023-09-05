@@ -225,7 +225,7 @@ fun MathQuizApp(
                     "For ${viewModel.quizMode.name.lowercase()}, I answered $questionsAnswered ${if (questionsAnswered == 1) "question" else "questions"} at a rate of $questionsPerMinute ${if (questionsPerMinute == 1) "question" else "questions"} per minute${if (averageAccuracy == null) "" else " with an average accuracy of $averageAccuracy%"}!"
                 shareScore(context, quiz, shareText)
             }, navigateUp = {
-                navController.navigateUp()
+                navController.popBackStack()
             }, quizMode = viewModel.quizMode, onTimerComplete = {
                 scope.launch {
                     quizResults = viewModel.exportResults()

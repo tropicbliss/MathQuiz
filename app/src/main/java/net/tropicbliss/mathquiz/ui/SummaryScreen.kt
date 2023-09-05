@@ -59,13 +59,6 @@ fun SummaryScreen(
                                 ), style = MaterialTheme.typography.titleMedium
                             )
                         }
-                        if (problem.accuracyPercentage != null) {
-                            Text(
-                                text = stringResource(
-                                    R.string.accuracy_percentage, problem.accuracyPercentage
-                                ), style = MaterialTheme.typography.titleMedium
-                            )
-                        }
                         if (problem.variancePercentage != null) {
                             Text(
                                 text = stringResource(

@@ -52,7 +52,6 @@ class QuizViewModel(private val quizzesRepository: QuizzesRepository) : ViewMode
     fun submit() {
         val iUserAnswer = userAnswer.toIntOrNull() ?: return
         val actualAnswer = currentProblem.operand1 * currentProblem.operand2
-        var accuracyPercentage: Float? = null
         var variancePercentage: Int? = null
         var acceptableRange: String? = null
         val isCorrect = when (quizMode) {
@@ -61,7 +60,6 @@ class QuizViewModel(private val quizzesRepository: QuizzesRepository) : ViewMode
                 val tempVariancePercentage =
                     (actualAnswer - iUserAnswer).toFloat() / actualAnswer * 100
                 variancePercentage = tempVariancePercentage.roundToInt()
-                accuracyPercentage = 100 - abs(tempVariancePercentage)
                 val min = ceil(0.8f * actualAnswer).toInt()
                 val max = floor(1.2f * actualAnswer).toInt()
                 acceptableRange = "$min - $max"
@@ -73,7 +71,6 @@ class QuizViewModel(private val quizzesRepository: QuizzesRepository) : ViewMode
                 problem = currentProblem,
                 userAnswer = iUserAnswer,
                 isCorrect = isCorrect,
-                accuracyPercentage = accuracyPercentage,
                 actualAnswer = actualAnswer,
                 variancePercentage = variancePercentage,
                 acceptableRange = acceptableRange
@@ -84,11 +81,11 @@ class QuizViewModel(private val quizzesRepository: QuizzesRepository) : ViewMode
     }
 
     suspend fun exportResults(): Results {
-        val averages = answeredProblems.mapNotNull { it.accuracyPercentage }
-        val averageAccuracy: Int? = if (averages.isEmpty()) {
+        val averageAccuracy: Int? = if (answeredProblems.isEmpty()) {
             null
         } else {
-            averages.average().roundToInt()
+            (answeredProblems.count { it.isCorrect }
+                .toFloat() / answeredProblems.count()).roundToInt()
         }
         val questionsPerMinute =
             (answeredProblems.count().toFloat() / quizMode.getTotalTimeInMinutes()).roundToInt()
@@ -109,14 +106,11 @@ class QuizViewModel(private val quizzesRepository: QuizzesRepository) : ViewMode
 }
 
 data class Problem(
-    val operand1: Int,
-    val operand2: Int
+    val operand1: Int, val operand2: Int
 )
 
 data class Results(
-    val averageAccuracy: Int?,
-    val questionsPerMinute: Int,
-    val problems: List<AnsweredProblem>
+    val averageAccuracy: Int?, val questionsPerMinute: Int, val problems: List<AnsweredProblem>
 )
 
 data class AnsweredProblem(
@@ -125,6 +119,5 @@ data class AnsweredProblem(
     val actualAnswer: Int,
     val isCorrect: Boolean,
     val variancePercentage: Int?,
-    val acceptableRange: String?,
-    val accuracyPercentage: Float?
+    val acceptableRange: String?
 )
