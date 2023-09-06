@@ -9,10 +9,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -32,9 +35,27 @@ fun QuizScreen(quizModel: QuizViewModel, modifier: Modifier = Modifier) {
             style = MaterialTheme.typography.displayLarge
         )
         Column {
-            OutlinedTextField(value = quizModel.userAnswer, enabled = false, placeholder = {
-                Text(stringResource(R.string.answer))
-            }, onValueChange = {}, modifier = modifier.fillMaxWidth())
+            OutlinedTextField(
+                value = quizModel.userAnswer,
+                enabled = false,
+                placeholder = {
+                    Text(stringResource(R.string.answer))
+                },
+                onValueChange = {},
+                modifier = modifier.fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                    disabledContainerColor = Color.Transparent,
+                    disabledBorderColor = MaterialTheme.colorScheme.outline,
+                    disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    disabledTrailingIconColor = MaterialTheme.colorScheme.onSurface,
+                    disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    disabledSupportingTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    disabledPrefixColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    disabledSuffixColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            )
             NumPad(onNumPress = {
                 quizModel.updateUserAnswer(quizModel.userAnswer + it)
             }, onBackspace = {
