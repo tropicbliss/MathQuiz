@@ -225,7 +225,7 @@ fun MathQuizApp(
                     "For ${viewModel.quizMode.name.lowercase()}, I answered $questionsAnswered ${if (questionsAnswered == 1) "question" else "questions"} at a rate of $questionsPerMinute ${if (questionsPerMinute == 1) "question" else "questions"} per minute${if (averageAccuracy == null) "" else " with an average accuracy of $averageAccuracy%"}!"
                 shareScore(context, quiz, shareText)
             }, navigateUp = {
-                navController.popBackStack()
+                navController.goBackHome()
             }, quizMode = viewModel.quizMode, onTimerComplete = {
                 scope.launch {
                     quizResults = viewModel.exportResults()
@@ -252,10 +252,9 @@ fun MathQuizApp(
                 }
                 composable(route = MathQuizScreen.Summary.name) {
                     BackHandler {
-                        navController.popBackStack(MathQuizScreen.Start.name, inclusive = false)
+                        navController.goBackHome()
                     }
-                    SummaryScreen(
-                        results = quizResults!!,
+                    SummaryScreen(results = quizResults!!,
                         isDialogOpen = isDialogOpen,
                         onCloseInfo = {
                             isDialogOpen = false
@@ -294,6 +293,10 @@ fun Timer(startTime: Int, onComplete: () -> Unit) {
         }
     }
     CircularProgressIndicator(progress = animatedProgress)
+}
+
+fun NavHostController.goBackHome() {
+    this.popBackStack(MathQuizScreen.Start.name, inclusive = false)
 }
 
 private fun shareScore(context: Context, subject: String, text: String) {
