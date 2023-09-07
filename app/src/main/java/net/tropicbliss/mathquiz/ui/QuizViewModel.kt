@@ -13,6 +13,8 @@ import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
+const val MIN_ACCURACY = 0.8f
+
 class QuizViewModel(private val quizzesRepository: QuizzesRepository) : ViewModel() {
     var quizMode = QuizMode.Estimation
         private set
@@ -60,8 +62,8 @@ class QuizViewModel(private val quizzesRepository: QuizzesRepository) : ViewMode
                 val tempVariancePercentage =
                     (actualAnswer - iUserAnswer).toFloat() / actualAnswer * 100
                 variancePercentage = tempVariancePercentage.roundToInt()
-                val min = ceil(0.8f * actualAnswer).toInt()
-                val max = floor(1.2f * actualAnswer).toInt()
+                val min = ceil(MIN_ACCURACY * actualAnswer).toInt()
+                val max = floor((2f - MIN_ACCURACY) * actualAnswer).toInt()
                 acceptableRange = "$min - $max"
                 (min..max).contains(iUserAnswer)
             }
@@ -85,7 +87,7 @@ class QuizViewModel(private val quizzesRepository: QuizzesRepository) : ViewMode
             null
         } else {
             (answeredProblems.count { it.isCorrect }
-                .toFloat() / answeredProblems.count()).roundToInt()
+                .toFloat() / answeredProblems.count()).roundToInt() * 100
         }
         val questionsPerMinute =
             (answeredProblems.count().toFloat() / quizMode.getTotalTimeInMinutes()).roundToInt()
