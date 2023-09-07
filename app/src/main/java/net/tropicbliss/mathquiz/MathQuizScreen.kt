@@ -196,7 +196,10 @@ fun MathQuizApp(
                         scope.launch {
                             drawerState.close()
                         }
-                        navController.navigate(item.toMathQuizScreen().name)
+                        when (val mathQuizScreen = item.toMathQuizScreen()) {
+                            MathQuizScreen.Start -> navController.popBackStack(MathQuizScreen.Start.name, inclusive = false)
+                            else -> navController.navigate(mathQuizScreen.name)
+                        }
                     }, icon = {
                         Icon(
                             imageVector = if (index == selectedItemIndex) {
