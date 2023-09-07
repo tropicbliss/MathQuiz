@@ -197,7 +197,7 @@ fun MathQuizApp(
                             drawerState.close()
                         }
                         when (val mathQuizScreen = item.toMathQuizScreen()) {
-                            MathQuizScreen.Start -> navController.popBackStack(MathQuizScreen.Start.name, inclusive = false)
+                            MathQuizScreen.Start -> navController.goBackHome()
                             else -> navController.navigate(mathQuizScreen.name)
                         }
                     }, icon = {
@@ -257,7 +257,8 @@ fun MathQuizApp(
                     BackHandler {
                         navController.goBackHome()
                     }
-                    SummaryScreen(results = quizResults!!,
+                    SummaryScreen(
+                        results = quizResults!!,
                         isDialogOpen = isDialogOpen,
                         onCloseInfo = {
                             isDialogOpen = false
