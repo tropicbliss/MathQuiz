@@ -1,10 +1,10 @@
 package net.tropicbliss.mathquiz.ui
 
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import net.tropicbliss.mathquiz.MathQuizApplication
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {

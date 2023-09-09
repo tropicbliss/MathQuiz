@@ -45,22 +45,22 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import net.tropicbliss.mathquiz.data.QuizMode
+import net.tropicbliss.mathquiz.ui.AppViewModelProvider
 import net.tropicbliss.mathquiz.ui.ProgressScreen
 import net.tropicbliss.mathquiz.ui.QuizScreen
 import net.tropicbliss.mathquiz.ui.QuizViewModel
+import net.tropicbliss.mathquiz.ui.Results
 import net.tropicbliss.mathquiz.ui.StartScreen
 import net.tropicbliss.mathquiz.ui.SummaryScreen
-import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.delay
-import net.tropicbliss.mathquiz.data.QuizMode
-import net.tropicbliss.mathquiz.ui.AppViewModelProvider
-import net.tropicbliss.mathquiz.ui.Results
 
 enum class MathQuizScreen(@StringRes val title: Int) {
     Start(R.string.app_name), Quiz(R.string.app_name), Summary(R.string.summary_screen), Progress(R.string.progress_screen)

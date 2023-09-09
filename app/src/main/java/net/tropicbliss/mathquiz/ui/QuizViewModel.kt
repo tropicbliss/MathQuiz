@@ -10,7 +10,6 @@ import net.tropicbliss.mathquiz.data.QuizzesRepository
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.roundToInt
-import kotlin.random.Random
 
 const val MIN_ACCURACY = 0.8f
 
