@@ -27,16 +27,24 @@ class QuizViewModel(private val quizzesRepository: QuizzesRepository) : ViewMode
     private var answeredProblems: MutableList<AnsweredProblem> = mutableListOf()
 
     private fun generateRandomProblem(): Problem {
-        val operand1 = generateRandomOperand()
-        val operand2 = generateRandomOperand()
+        val operand1 = generateRandomOperand(null)
+        val operand2 = generateRandomOperand(operand1)
         return Problem(operand1, operand2)
     }
 
-    private fun generateRandomOperand(): Int {
+    private fun generateRandomOperand(firstValueHint: Int?): Int {
         return when (quizMode) {
             QuizMode.Precision -> (1..10).random()
             QuizMode.Estimation -> {
-                val range = when (Digit.values().toList().shuffled().first()) {
+                val isGenerateFirstDigit = if (firstValueHint == null) true else {
+                    !(1..10).contains(firstValueHint)
+                }
+                val randomDigit = if (isGenerateFirstDigit) {
+                    Digit.values().toList()
+                } else {
+                    listOf(Digit.Two, Digit.Three, Digit.Four)
+                }.random()
+                val range = when (randomDigit) {
                     Digit.One -> (1..9)
                     Digit.Two -> (10..99)
                     Digit.Three -> (100..999)
