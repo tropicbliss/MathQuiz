@@ -7,11 +7,10 @@ import androidx.lifecycle.ViewModel
 import net.tropicbliss.mathquiz.data.Quiz
 import net.tropicbliss.mathquiz.data.QuizMode
 import net.tropicbliss.mathquiz.data.QuizzesRepository
-import kotlin.math.abs
-import kotlin.collections.average
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.roundToInt
+import kotlin.random.Random
 
 const val MIN_ACCURACY = 0.8f
 
@@ -28,13 +27,24 @@ class QuizViewModel(private val quizzesRepository: QuizzesRepository) : ViewMode
     private var answeredProblems: MutableList<AnsweredProblem> = mutableListOf()
 
     private fun generateRandomProblem(): Problem {
-        val maxOperand = when (quizMode) {
-            QuizMode.Precision -> 10
-            QuizMode.Estimation -> 1999
-        }
-        val operand1 = (1..maxOperand).random()
-        val operand2 = (1..maxOperand).random()
+        val operand1 = generateRandomOperand()
+        val operand2 = generateRandomOperand()
         return Problem(operand1, operand2)
+    }
+
+    private fun generateRandomOperand(): Int {
+        return when (quizMode) {
+            QuizMode.Precision -> (1..10).random()
+            QuizMode.Estimation -> {
+                val range = when (Digit.values().toList().shuffled().first()) {
+                    Digit.One -> (1..9)
+                    Digit.Two -> (10..99)
+                    Digit.Three -> (100..999)
+                    Digit.Four -> (1000..1999)
+                }
+                range.random()
+            }
+        }
     }
 
     fun setQuizMode(quizMode: QuizMode) {
@@ -123,3 +133,10 @@ data class AnsweredProblem(
     val variancePercentage: Int?,
     val acceptableRange: String?
 )
+
+private enum class Digit {
+    One,
+    Two,
+    Three,
+    Four
+}
