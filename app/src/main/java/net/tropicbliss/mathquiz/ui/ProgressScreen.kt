@@ -18,6 +18,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import net.tropicbliss.mathquiz.EmptyList
 import net.tropicbliss.mathquiz.R
 
 @Composable
@@ -27,37 +28,41 @@ fun ProgressScreen(
 ) {
     val progressUiState by viewModel.progressUiState.collectAsState()
 
-    LazyColumn(
-        modifier = modifier
-    ) {
-        items(progressUiState.quizList) { quiz ->
-            Card(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(dimensionResource(R.dimen.padding_medium)),
-                elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
-            ) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
-                    modifier = Modifier.padding(
-                        dimensionResource(R.dimen.padding_medium)
-                    )
+    if (progressUiState.quizList.isEmpty()) {
+        EmptyList()
+    } else {
+        LazyColumn(
+            modifier = modifier
+        ) {
+            items(progressUiState.quizList) { quiz ->
+                Card(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .padding(dimensionResource(R.dimen.padding_medium)),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
                 ) {
-                    Text(
-                        text = quiz.mode, style = MaterialTheme.typography.displayMedium
-                    )
-                    Column {
-                        Text(
-                            text = stringResource(
-                                R.string.questions_per_minute, quiz.questionsPerMinute
-                            ), style = MaterialTheme.typography.titleMedium
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
+                        modifier = Modifier.padding(
+                            dimensionResource(R.dimen.padding_medium)
                         )
-                        if (quiz.averageAccuracy != null) {
+                    ) {
+                        Text(
+                            text = quiz.mode, style = MaterialTheme.typography.displayMedium
+                        )
+                        Column {
                             Text(
                                 text = stringResource(
-                                    R.string.average_accuracy, quiz.averageAccuracy
+                                    R.string.questions_per_minute, quiz.questionsPerMinute
                                 ), style = MaterialTheme.typography.titleMedium
                             )
+                            if (quiz.averageAccuracy != null) {
+                                Text(
+                                    text = stringResource(
+                                        R.string.average_accuracy, quiz.averageAccuracy
+                                    ), style = MaterialTheme.typography.titleMedium
+                                )
+                            }
                         }
                     }
                 }

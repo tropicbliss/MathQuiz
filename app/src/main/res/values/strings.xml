@@ -28,4 +28,6 @@
     <string name="variance_percentage">Variance: %d%%</string>
     <string name="acceptable_range">Acceptable range: %s</string>
     <string name="submit">Submit</string>
+    <string name="empty_list_msg">This list is currently empty.</string>
+    <string name="empty_list">Empty list</string>
 </resources>

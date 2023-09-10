@@ -18,53 +18,58 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import net.tropicbliss.mathquiz.EmptyList
 import net.tropicbliss.mathquiz.R
 
 @Composable
 fun SummaryScreen(
     results: Results, isDialogOpen: Boolean, onCloseInfo: () -> Unit, modifier: Modifier = Modifier
 ) {
-    LazyColumn(modifier = modifier) {
-        items(results.problems) { problem ->
-            Card(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(dimensionResource(R.dimen.padding_medium)),
-                elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
-            ) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
-                    modifier = Modifier.padding(
-                        dimensionResource(R.dimen.padding_medium)
-                    )
+    if (results.problems.isEmpty()) {
+        EmptyList()
+    } else {
+        LazyColumn(modifier = modifier) {
+            items(results.problems) { problem ->
+                Card(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .padding(dimensionResource(R.dimen.padding_medium)),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
                 ) {
-                    Text(
-                        text = "${problem.problem.operand1} × ${problem.problem.operand2}",
-                        style = MaterialTheme.typography.displayMedium
-                    )
-                    Column {
-                        Text(
-                            text = stringResource(R.string.actual_answer, problem.actualAnswer),
-                            style = MaterialTheme.typography.titleMedium
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
+                        modifier = Modifier.padding(
+                            dimensionResource(R.dimen.padding_medium)
                         )
+                    ) {
                         Text(
-                            text = stringResource(R.string.user_answer, problem.userAnswer),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = if (problem.isCorrect) Color.Green else Color.Red
+                            text = "${problem.problem.operand1} × ${problem.problem.operand2}",
+                            style = MaterialTheme.typography.displayMedium
                         )
-                        if (problem.acceptableRange != null) {
+                        Column {
                             Text(
-                                text = stringResource(
-                                    R.string.acceptable_range, problem.acceptableRange
-                                ), style = MaterialTheme.typography.titleMedium
+                                text = stringResource(R.string.actual_answer, problem.actualAnswer),
+                                style = MaterialTheme.typography.titleMedium
                             )
-                        }
-                        if (problem.variancePercentage != null) {
                             Text(
-                                text = stringResource(
-                                    R.string.variance_percentage, problem.variancePercentage
-                                ), style = MaterialTheme.typography.titleMedium
+                                text = stringResource(R.string.user_answer, problem.userAnswer),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = if (problem.isCorrect) Color.Green else Color.Red
                             )
+                            if (problem.acceptableRange != null) {
+                                Text(
+                                    text = stringResource(
+                                        R.string.acceptable_range, problem.acceptableRange
+                                    ), style = MaterialTheme.typography.titleMedium
+                                )
+                            }
+                            if (problem.variancePercentage != null) {
+                                Text(
+                                    text = stringResource(
+                                        R.string.variance_percentage, problem.variancePercentage
+                                    ), style = MaterialTheme.typography.titleMedium
+                                )
+                            }
                         }
                     }
                 }
@@ -82,8 +87,7 @@ fun SummaryScreen(
             Column {
                 Text(
                     text = stringResource(
-                        R.string.questions_per_minute,
-                        results.questionsPerMinute
+                        R.string.questions_per_minute, results.questionsPerMinute
                     )
                 )
                 if (results.averageAccuracy != null) {
