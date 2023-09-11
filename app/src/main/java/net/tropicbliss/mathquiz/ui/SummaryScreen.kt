@@ -18,8 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import net.tropicbliss.mathquiz.EmptyList
 import net.tropicbliss.mathquiz.R
+import net.tropicbliss.mathquiz.ui.composables.EmptyList
 
 @Composable
 fun SummaryScreen(
